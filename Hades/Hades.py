@@ -4,6 +4,33 @@ from tkinter import colorchooser
 import os
 import subprocess
 
+class CreateToolTip(object):
+    '''
+    create a tooltip for a given widget
+    '''
+    def __init__(self, widget, text='widget info'):
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.close)
+    def enter(self, event=None):
+        x = y = 0
+        x, y, cx, cy = self.widget.bbox("insert")
+        x += self.widget.winfo_rootx() + 25
+        y += self.widget.winfo_rooty() + 20
+        # creates a toplevel window
+        self.tw = Toplevel(self.widget)
+        # Leaves only the label and removes the app window
+        self.tw.wm_overrideredirect(True)
+        self.tw.wm_geometry("+%d+%d" % (x, y))
+        label = Label(self.tw, text=self.text, justify='left',
+                       background='grey13', relief='solid', borderwidth=1,
+                       font=("times", "8", "normal"))
+        label.pack(ipadx=1)
+    def close(self, event=None):
+        if self.tw: 
+            self.tw.destroy()
+
 
 # -----Window-----
 def window():
@@ -579,6 +606,7 @@ def power_options():
     # ------Buttons---------#
     restart = Button(win, activebackground="grey10", text="RESTART", image=restimg, width=width2, height=height2,
                      borderwidth=0, highlightthickness=0, command=lambda: os.system("shutdown /r"))
+
     shut = Button(win, activebackground="grey10", text="SHUTDOWN", image=shutimg, width=width2, height=height2,
                   borderwidth=0, highlightthickness=0, command=lambda: os.system("shutdown /s"))
 
@@ -593,6 +621,11 @@ def power_options():
     sleep.place(x=space, y=35)
     shut.place(x=space2, y=35)
     restart.place(x=space3, y=35)
+
+    restart_ttp = CreateToolTip(restart, "Restart")
+    shut_ttp = CreateToolTip(shut, "Shut Down")
+    sleep_ttp = CreateToolTip(sleep, "Sleep")
+
     #-Hide
     def power_options_hide():
         sleep.place_forget()
